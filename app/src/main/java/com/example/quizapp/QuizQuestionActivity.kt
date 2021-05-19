@@ -1,5 +1,6 @@
 package com.example.quizapp
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
@@ -16,11 +17,14 @@ class QuizQuestionActivity : AppCompatActivity(),View.OnClickListener{
     private var mCurrentPosition:Int =1
     private var mQuestionList:ArrayList<Question>?=null
     private var mSelectedOptionPosition:Int =0
+    private var mCorrectAns:Int =0
+    private var mUserName:String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityQuizQuestionBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
+        mUserName = intent.getStringExtra(Constants.USER_NAME)
         mQuestionList = Constants.getQuestion()
         setQuestion()
 
@@ -87,17 +91,19 @@ class QuizQuestionActivity : AppCompatActivity(),View.OnClickListener{
                             setQuestion()
                         }
                         else -> {
-                            Toast.makeText(
-                                this,
-                                "You hav successfully completed this quiz",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            val intent = Intent(this,ResultActivity::class.java)
+                            intent.putExtra(Constants.USER_NAME,mUserName)
+                            intent.putExtra(Constants.CORRECT_ANS,mCorrectAns)
+                            intent.putExtra(Constants.TOTAL_QUESTIONS,mQuestionList!!.size)
+                            startActivity(intent)
                         }
                     }
                 } else {
                     val question =mQuestionList?.get(mCurrentPosition-1)
                     if(question!!.correctAns != mSelectedOptionPosition){
                         ansView(mSelectedOptionPosition,R.drawable.wrong_option_border_bg)
+                    }else{
+                        mCorrectAns++
                     }
                     ansView(question.correctAns,R.drawable.correct_option_border_bg)
                     if(mCurrentPosition == mQuestionList!!.size){
